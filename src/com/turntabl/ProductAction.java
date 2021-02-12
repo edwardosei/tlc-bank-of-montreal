@@ -10,10 +10,19 @@ public class ProductAction implements MontrealTradedProducts {
     private final List<Product> listOfRegisteredProducts = new ArrayList<Product>();
     private final Map<Product,Integer> listOfProductsTraded = new HashMap<Product,Integer>();
 
+    public List<Product> getListOfRegisteredProducts() {
+        return listOfRegisteredProducts;
+    }
+
+    public Map<Product, Integer> getListOfProductsTraded() {
+        return listOfProductsTraded;
+    }
+
     private boolean isProductRegisteredAlready(Product product) {
 
         for(Product item : this.listOfRegisteredProducts) {
             if (item.getProductID() == product.getProductID()) {
+                product.setRegistered(true);
                 return true;
             }
         }
@@ -27,6 +36,7 @@ public class ProductAction implements MontrealTradedProducts {
             throw new ProductAlreadyRegisteredException("Product ID is registered already.");
         }
         else {
+            product.setRegistered(true);
             this.listOfRegisteredProducts.add(product);
         }
     }

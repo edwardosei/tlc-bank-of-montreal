@@ -21,7 +21,7 @@ public class ProductAction implements MontrealTradedProducts {
     private boolean isProductRegisteredAlready(Product product) {
 
         for(Product item : this.listOfRegisteredProducts) {
-            if (item.getProductID() == product.getProductID()) {
+            if (item.getProductID().equals(product.getProductID())) {
                 product.setRegistered(true);
                 return true;
             }
@@ -32,7 +32,7 @@ public class ProductAction implements MontrealTradedProducts {
 
     @Override
     public void addNewProduct(Product product) throws ProductAlreadyRegisteredException {
-        if (isProductRegisteredAlready(product)  == true) {
+        if (isProductRegisteredAlready(product)) {
             throw new ProductAlreadyRegisteredException("Product ID is registered already.");
         }
         else {

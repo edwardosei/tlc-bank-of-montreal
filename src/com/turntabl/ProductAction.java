@@ -57,16 +57,14 @@ public class ProductAction implements MontrealTradedProducts {
 
     @Override
     public int totalTradeQuantityForDay() {
-        int sumOfQuantity = this.listOfProductsTraded.stream().filter(trade -> LocalDate.now().equals(trade.getDate()))
+        return this.listOfProductsTraded.stream().filter(trade -> LocalDate.now().equals(trade.getDate()))
                                 .mapToInt(trade -> trade.getQuantity()).sum();
-        return sumOfQuantity;
     }
 
     @Override
     public double totalValueOfDaysTradedProducts() {
-        double totalValue = this.listOfProductsTraded.stream().filter(trade -> LocalDate.now().equals(trade.getDate()))
-                                .mapToDouble(trade -> trade.getQuantity() * trade.getProduct().getCurrentPrice(this.pricingService)).sum();
 
-        return totalValue;
+        return this.listOfProductsTraded.stream().filter(trade -> LocalDate.now().equals(trade.getDate()))
+                                .mapToDouble(trade -> trade.getQuantity() * trade.getProduct().getCurrentPrice(this.pricingService)).sum();
     }
 }

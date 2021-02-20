@@ -1,28 +1,31 @@
 package com.turntabl;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ProductAction implements MontrealTradedProducts {
-
-    private final List<Product> listOfRegisteredProducts = new ArrayList<Product>();
-    private final Map<Product,Integer> listOfProductsTraded = new HashMap<Product,Integer>();
 
     public List<Product> getListOfRegisteredProducts() {
         return listOfRegisteredProducts;
     }
 
-    public Map<Product, Integer> getListOfProductsTraded() {
+    public List<Trade> getListOfProductsTraded() {
         return listOfProductsTraded;
+    }
+
+    private final List<Product> listOfRegisteredProducts = new ArrayList<Product>();
+    private final List<Trade> listOfProductsTraded = new ArrayList<Trade>();
+    private final ProductPricingService pricingService;
+
+    public ProductAction(ProductPricingService pricingService) {
+        this.pricingService = pricingService;
     }
 
     private boolean isProductRegisteredAlready(Product product) {
 
         for(Product item : this.listOfRegisteredProducts) {
-            if (item.getProductID().equals(product.getProductID())) {
-                product.setRegistered(true);
+            if (item.getProductId().equals(product.getProductId())) {
                 return true;
             }
         }
@@ -36,15 +39,15 @@ public class ProductAction implements MontrealTradedProducts {
             throw new ProductAlreadyRegisteredException("Product ID is registered already.");
         }
         else {
-            product.setRegistered(true);
             this.listOfRegisteredProducts.add(product);
         }
     }
 
     @Override
     public void trade(Product product, int quantity) {
-        if (isProductRegisteredAlready(product)  == true) {
-            this.listOfProductsTraded.put(product, quantity);
+        if (isProductRegisteredAlready(product)) {
+            Trade trade = new Trade(product,quantity, LocalDate.now());
+            this.listOfProductsTraded.add(trade);
         }
         else {
             System.out.println("Please register product in order to trade!");
@@ -54,19 +57,15 @@ public class ProductAction implements MontrealTradedProducts {
 
     @Override
     public int totalTradeQuantityForDay() {
-        int sumOfQuantity = this.listOfProductsTraded.values().stream().mapToInt(value -> value).sum();
+        int sumOfQuantity = this.listOfProductsTraded.stream().filter(trade -> LocalDate.now().equals(trade.getDate()))
+                                .mapToInt(trade -> trade.getQuantity()).sum();
         return sumOfQuantity;
     }
 
     @Override
     public double totalValueOfDaysTradedProducts() {
-        double totalValue = 0;
-
-        for (Map.Entry<Product, Integer> entry : this.listOfProductsTraded.entrySet()) {
-            Product product = entry.getKey();
-            Integer quantity = entry.getValue();
-            totalValue += product.getCurrentPrice() * quantity;
-        }
+        double totalValue = this.listOfProductsTraded.stream().filter(trade -> LocalDate.now().equals(trade.getDate()))
+                                .mapToDouble(trade -> trade.getQuantity() * trade.getProduct().getCurrentPrice(this.pricingService)).sum();
 
         return totalValue;
     }
